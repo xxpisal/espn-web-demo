@@ -1,0 +1,10 @@
+$kind: http-request
+name: Get Teams
+method: GET
+url: '{{baseUrl}}/teams/:sport/:league'
+order: 1000
+pathVariables:
+  - key: sport
+    value: football
+  - key: league
+    value: nfl

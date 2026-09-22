@@ -1,99 +1,134 @@
 'use client';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { newsApi } from '@/lib/api';
-import { NewsArticle } from '@/types';
+import { TeacherSportItem } from '@/types';
 import Image from 'next/image';
+import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
+import { ArrowRight } from 'lucide-react';
+import { teacherSportsApi } from '@/lib/api';
 
 const SPORT_BADGE_COLORS: Record<string, string> = {
-  nfl: 'bg-[#013369] text-white',
-  nba: 'bg-[#006BB6] text-white',
-  mlb: 'bg-[#002D72] text-white',
-  nhl: 'bg-[#000000] text-white border border-gray-600',
-  soccer: 'bg-[#2C7F3F] text-white',
+  boxing: 'bg-red-700 text-white',
+  football: 'bg-[#013369] text-white',
+  tennis: 'bg-emerald-700 text-white',
+  cycling: 'bg-amber-600 text-white',
+  swimming: 'bg-blue-600 text-white',
+  running: 'bg-orange-600 text-white',
+  racing: 'bg-purple-700 text-white',
+  volleyball: 'bg-pink-700 text-white',
+  chess: 'bg-neutral-800 text-white',
   default: 'bg-espn-red text-white',
 };
 
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=400&q=80',
-  'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&q=80',
-  'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80',
-  'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&q=80',
-  'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&q=80',
-];
-
-const MOCK_NEWS: NewsArticle[] = Array.from({ length: 12 }, (_, i) => ({
-  id: `mock_${i}`,
-  headline: [
-    'NFL Power Rankings: Week 15 Edition',
-    'NBA Trade Rumors: Stars on the Move Before Deadline',
-    'College Football Playoff Bracket Analysis',
-    'Soccer: Champions League Group Stage Results',
-    'NHL: Battle for the Stanley Cup Heats Up',
-    'Golf: Tour Championship Preview and Picks',
-    'MMA: UFC 300 Full Card Breakdown',
-    'Tennis: Grand Slam Season Recap',
-    'MLB Free Agency: Top Targets This Offseason',
-    'Fantasy Football: Must-Start Picks for Week 15',
-    'F1: Championship Battle Goes Down to Final Race',
-    'NCAAB: Top 25 Rankings and Analysis',
-  ][i],
-  description: 'Get the full breakdown and analysis from our experts.',
-  sport: (['nfl', 'nba', 'ncaaf', 'soccer', 'nhl', 'golf', 'mma', 'tennis', 'mlb', 'nfl', 'f1', 'ncaab'] as const)[i],
-  published: new Date(Date.now() - i * 1800000).toISOString(),
-  images: [{ url: FALLBACK_IMAGES[i % FALLBACK_IMAGES.length] }],
-}));
-
-function NewsCard({ article, index }: { article: NewsArticle; index: number }) {
-  const image = article.images?.[0]?.url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
-  const badgeClass = SPORT_BADGE_COLORS[article.sport || 'default'] || SPORT_BADGE_COLORS.default;
-  const timeAgo = article.published ? formatDistanceToNow(new Date(article.published), { addSuffix: true }) : '';
-
-  return (
-    <div className="flex gap-3 py-3 border-b border-espn-gray-border group cursor-pointer">
-      <div className="relative w-[100px] h-[70px] shrink-0 overflow-hidden rounded-sm">
-        <Image
-          src={image}
-          alt={article.headline}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-          sizes="100px"
-          unoptimized
-        />
-      </div>
-      <div className="flex-1 min-w-0">
-        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase ${badgeClass}`}>
-          {article.sport}
-        </span>
-        <h4 className="text-sm font-bold text-white mt-1 line-clamp-2 group-hover:text-espn-red transition-colors leading-tight">
-          {article.headline}
-        </h4>
-        <p className="text-espn-text-muted text-xs mt-1">{timeAgo}</p>
-      </div>
-    </div>
-  );
-}
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=400&q=80';
 
 export function NewsGrid() {
-  const { data: articles } = useQuery({
-    queryKey: ['top-news-grid'],
-    queryFn: () => newsApi.getTopHeadlines(20).then(r => r.data),
-    retry: false,
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+
+  // Fetch real sports from teacher API
+  const { data: sports = [], isLoading } = useQuery<TeacherSportItem[]>({
+    queryKey: ['teacher-news-grid'],
+    queryFn: async () => {
+      try {
+        const res = await teacherSportsApi.getAllSports();
+        return Array.isArray(res.data) ? res.data : [];
+      } catch (e) {
+        return [];
+      }
+    },
   });
 
-  const displayArticles = Array.isArray(articles) && articles.length > 0 ? articles : MOCK_NEWS;
+
+  const categories = ['all', 'Football', 'Boxing', 'Tennis', 'Cycling', 'Swimming', 'Running', 'Racing', 'Volleyball', 'Chess'];
+
+  const filteredSports = activeCategory === 'all'
+    ? sports
+    : sports.filter((s) => s.category?.name?.toLowerCase() === activeCategory.toLowerCase());
 
   return (
-    <section>
-      <div className="flex items-center justify-between mb-0 mt-6">
-        <h2 className="text-white font-black text-lg uppercase border-l-4 border-espn-red pl-2">Top Headlines</h2>
-        <button className="text-espn-red text-xs font-bold hover:underline">See All</button>
+    <section className="mt-8">
+      {/* Header and Category Pills */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-espn-gray-border pb-3 mb-4 gap-3">
+        <h2 className="text-white font-black text-xl uppercase border-l-4 border-espn-red pl-2">
+          Latest Sports & Headlines
+        </h2>
+        <Link href="/sports" className="text-espn-red text-xs font-bold hover:underline flex items-center gap-1">
+          View All {sports.length} Sports <ArrowRight className="w-3 h-3" />
+        </Link>
       </div>
-      <div>
-        {displayArticles.slice(0, 10).map((article, i) => (
-          <NewsCard key={article.id} article={article} index={i} />
+
+      {/* Category selector */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-3 mb-2 scrollbar-hide">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`px-3 py-1 rounded text-xs font-bold capitalize transition-colors shrink-0 ${
+              activeCategory.toLowerCase() === cat.toLowerCase()
+                ? 'bg-espn-red text-white'
+                : 'bg-espn-dark text-espn-text border border-espn-gray-border hover:text-white'
+            }`}
+          >
+            {cat}
+          </button>
         ))}
       </div>
+
+      {/* Articles List */}
+      {isLoading ? (
+        <div className="py-12 text-center text-espn-text-muted">Loading sports headlines...</div>
+      ) : filteredSports.length === 0 ? (
+        <div className="py-12 text-center text-espn-text-muted">No items found for this category.</div>
+      ) : (
+        <div className="divide-y divide-espn-gray-border">
+          {filteredSports.slice(0, 15).map((item) => {
+            const cat = item.category?.name || 'Sport';
+            const badgeClass = SPORT_BADGE_COLORS[cat.toLowerCase()] || SPORT_BADGE_COLORS.default;
+            const img = item.imageUrls?.[0] || FALLBACK_IMAGE;
+
+            return (
+              <Link
+                key={item.uuid}
+                href={`/sport-detail/${item.uuid}`}
+                className="flex gap-4 py-3.5 group cursor-pointer hover:bg-espn-gray/30 px-2 rounded-sm transition-colors"
+              >
+                <div className="relative w-[110px] h-[75px] shrink-0 overflow-hidden rounded bg-espn-gray">
+                  <Image
+                    src={img}
+                    alt={item.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="110px"
+                    unoptimized
+                  />
+                </div>
+                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-sm uppercase ${badgeClass}`}>
+                        {cat}
+                      </span>
+                      {item.createdAt && (
+                        <span className="text-[10px] text-espn-text-muted" suppressHydrationWarning>
+                          {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                        </span>
+                      )}
+
+                    </div>
+                    <h4 className="text-sm font-bold text-white mt-1 line-clamp-2 group-hover:text-espn-red transition-colors leading-snug">
+                      {item.name}
+                    </h4>
+                  </div>
+                  <p className="text-espn-text-muted text-xs line-clamp-1 mt-1 font-light">
+                    {item.description}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }

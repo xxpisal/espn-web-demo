@@ -1,0 +1,8 @@
+$kind: http-request
+name: Get League Standings
+method: GET
+url: '{{baseUrl}}/fantasy/leagues/:leagueId/standings'
+order: 2000
+pathVariables:
+  - key: leagueId
+    value: '1'

@@ -1,0 +1,10 @@
+$kind: http-request
+name: Get Standings
+method: GET
+url: '{{baseUrl}}/sports/:sport/:league/standings'
+order: 1000
+pathVariables:
+  - key: sport
+    value: football
+  - key: league
+    value: nfl

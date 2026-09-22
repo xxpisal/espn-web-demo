@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
+import { EspnLogo } from '@/components/common/EspnLogo';
 
 export function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -27,9 +28,7 @@ export function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="bg-espn-red text-white font-black text-4xl px-4 py-2 inline-block tracking-tighter mb-4">
-            ESPN
-          </div>
+          <EspnLogo className="h-14 w-auto mx-auto mb-4" />
           <h1 className="text-white font-black text-2xl">Create Account</h1>
           <p className="text-espn-text-muted text-sm mt-2">Join millions of sports fans</p>
         </div>

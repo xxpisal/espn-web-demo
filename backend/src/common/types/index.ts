@@ -104,3 +104,62 @@ export interface Player {
   headshot?: string;
   stats?: Record<string, any>;
 }
+
+export interface TeacherSport {
+  id: number;
+  uuid: string;
+  name: string;
+  category?: {
+    name: string;
+  };
+  description: string;
+  imageUrls: string[];
+  createdAt: string;
+  updatedAt: string;
+  disabled?: boolean;
+}
+
+export interface TeacherCategory {
+  id: number;
+  uuid: string;
+  name: string;
+  description?: string | null;
+  events?: TeacherEvent[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TeacherEvent {
+  id: number;
+  uuid: string;
+  name: string;
+  description: string;
+  category?: {
+    name: string;
+  };
+  categoryName?: string;
+  imageUrls: string[];
+  locationName?: string;
+  latitude?: number;
+  longitude?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TeacherComment {
+  id?: number;
+  uuid?: string;
+  eventUuid: string;
+  comment: string;
+  createdAt?: string;
+}
+
+export interface TeacherFavorite {
+  id?: string;
+  uuid?: string | null;
+  sportUuid?: string;
+  eventUuid?: string;
+  isDeleted?: boolean;
+  isFavorite?: boolean;
+}
+

@@ -1,0 +1,10 @@
+$kind: http-request
+name: Get Player
+method: GET
+url: '{{baseUrl}}/players/:sport/:playerId'
+order: 1000
+pathVariables:
+  - key: sport
+    value: football
+  - key: playerId
+    value: '1'

@@ -9,7 +9,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'a4.espncdn.com' },
       { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'sport-api.eunglyzhia.com' },
+      { protocol: 'https', hostname: 'sport-hub.eunglyzhia.social' },
       { protocol: 'https', hostname: '**.espncdn.com' },
+      { protocol: 'https', hostname: '1000logos.net' },
     ],
   },
   async rewrites() {

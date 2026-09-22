@@ -1,0 +1,6 @@
+$kind: collection
+name: ESPN Clone API
+description: API collection for the ESPN Clone backend
+variables:
+  - key: baseUrl
+    value: 'http://localhost:3001/api/v1'

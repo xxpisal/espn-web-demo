@@ -1,0 +1,12 @@
+$kind: http-request
+name: Get Team Roster
+method: GET
+url: '{{baseUrl}}/teams/:sport/:league/:teamId/roster'
+order: 3000
+pathVariables:
+  - key: sport
+    value: football
+  - key: league
+    value: nfl
+  - key: teamId
+    value: '1'

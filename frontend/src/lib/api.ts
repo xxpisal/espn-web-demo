@@ -1,22 +1,57 @@
-import axios from 'axios';
-
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
-export const apiClient = axios.create({
-  baseURL: API_BASE,
-  headers: { 'Content-Type': 'application/json' },
-  timeout: 10000,
-});
+async function request<T = any>(
+  path: string,
+  options: RequestInit & { params?: Record<string, any> } = {}
+): Promise<{ data: T }> {
+  let url = path.startsWith('http') ? path : `${API_BASE}${path}`;
+  if (options.params) {
+    const qs = new URLSearchParams(
+      Object.entries(options.params).map(([k, v]) => [k, String(v)])
+    ).toString();
+    url += (url.includes('?') ? '&' : '?') + qs;
+  }
 
-apiClient.interceptors.request.use((config) => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((options.headers as Record<string, string>) || {}),
+  };
+
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('espn_token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      headers['Authorization'] = `Bearer ${token}`;
     }
   }
-  return config;
-});
+
+  const res = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  if (!res.ok) {
+    let errMessage = `HTTP error! status: ${res.status}`;
+    try {
+      const errData = await res.json();
+      errMessage = errData.message || errMessage;
+    } catch {}
+    throw new Error(errMessage);
+  }
+
+  const data = await res.json();
+  return { data };
+}
+
+export const apiClient = {
+  get: <T = any>(url: string, config?: { params?: Record<string, any> }) =>
+    request<T>(url, { method: 'GET', ...config }),
+  post: <T = any>(url: string, body?: any) =>
+    request<T>(url, { method: 'POST', body: JSON.stringify(body) }),
+  put: <T = any>(url: string, body?: any) =>
+    request<T>(url, { method: 'PUT', body: JSON.stringify(body) }),
+  delete: <T = any>(url: string) =>
+    request<T>(url, { method: 'DELETE' }),
+};
 
 // Scores
 export const scoresApi = {
@@ -66,4 +101,73 @@ export const fantasyApi = {
 // Search
 export const searchApi = {
   search: (query: string) => apiClient.get('/search', { params: { q: query } }),
+};
+
+// Teacher Provided Sports API (Direct fallback & backend proxy)
+const TEACHER_DIRECT_BASE = 'https://sport-api.eunglyzhia.com/api/v1';
+
+export const teacherSportsApi = {
+  getAllSports: async () => {
+    try {
+      return await apiClient.get('/sports/provided');
+    } catch {
+      return await apiClient.get(`${TEACHER_DIRECT_BASE}/sports`);
+    }
+  },
+  getSportByUuid: async (uuid: string) => {
+    try {
+      return await apiClient.get('/sports/provided/item/' + uuid);
+    } catch {
+      return await apiClient.get(`${TEACHER_DIRECT_BASE}/sports/${uuid}`);
+    }
+  },
+  getCategories: async () => {
+    try {
+      return await apiClient.get('/sports/provided/categories');
+    } catch {
+      return await apiClient.get(`${TEACHER_DIRECT_BASE}/categories`);
+    }
+  },
+  getEvents: async () => {
+    try {
+      return await apiClient.get('/sports/provided/events');
+    } catch {
+      return await apiClient.get(`${TEACHER_DIRECT_BASE}/events`);
+    }
+  },
+  getEventByUuid: async (uuid: string) => {
+    try {
+      return await apiClient.get('/sports/provided/events/' + uuid);
+    } catch {
+      return await apiClient.get(`${TEACHER_DIRECT_BASE}/events/${uuid}`);
+    }
+  },
+  getComments: async (eventUuid: string) => {
+    try {
+      return await apiClient.get('/sports/provided/comments/events/' + eventUuid);
+    } catch {
+      return await apiClient.get(`${TEACHER_DIRECT_BASE}/comments/events/${eventUuid}`);
+    }
+  },
+  createComment: async (eventUuid: string, comment: string) => {
+    try {
+      return await apiClient.post('/sports/provided/comments', { eventUuid, comment });
+    } catch {
+      return await apiClient.post(`${TEACHER_DIRECT_BASE}/comments`, { eventUuid, comment });
+    }
+  },
+  getFavorites: async () => {
+    try {
+      return await apiClient.get('/sports/provided/favorites');
+    } catch {
+      return await apiClient.get(`${TEACHER_DIRECT_BASE}/favorites`);
+    }
+  },
+  createFavorite: async (payload: { sportUuid?: string; eventUuid?: string }) => {
+    try {
+      return await apiClient.post('/sports/provided/favorites', payload);
+    } catch {
+      return await apiClient.post(`${TEACHER_DIRECT_BASE}/favorites`, payload);
+    }
+  },
 };

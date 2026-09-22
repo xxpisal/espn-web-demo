@@ -1,0 +1,11 @@
+$kind: http-request
+name: Get News By Sport
+method: GET
+url: '{{baseUrl}}/news/:sport?limit=15'
+order: 2000
+pathVariables:
+  - key: sport
+    value: football
+queryParams:
+  - key: limit
+    value: '15'

@@ -21,5 +21,9 @@
   "workspaces": [
     "frontend",
     "backend"
-  ]
+  ],
+  "overrides": {
+    "multer": "^2.4.0",
+    "minimatch": "^9.0.9"
+  }
 }

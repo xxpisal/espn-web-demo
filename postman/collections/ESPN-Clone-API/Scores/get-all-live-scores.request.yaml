@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get All Live Scores
+method: GET
+url: '{{baseUrl}}/scores/live'
+order: 1000

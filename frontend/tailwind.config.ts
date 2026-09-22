@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -8,18 +9,21 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        xs: '480px',
+      },
       colors: {
         espn: {
           red: '#CC0000',
           'red-dark': '#990000',
           'red-light': '#FF0000',
-          dark: '#1a1a1a',
-          darker: '#111111',
-          gray: '#2d2d2d',
-          'gray-light': '#3d3d3d',
-          'gray-border': '#444444',
-          text: '#d0d0d0',
-          'text-muted': '#888888',
+          dark: 'var(--espn-card)',
+          darker: 'var(--espn-bg)',
+          gray: 'var(--espn-sub)',
+          'gray-light': 'var(--espn-sub-light)',
+          'gray-border': 'var(--espn-border)',
+          text: 'var(--espn-text)',
+          'text-muted': 'var(--espn-text-muted)',
         },
       },
       fontFamily: {

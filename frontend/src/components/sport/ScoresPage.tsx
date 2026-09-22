@@ -43,14 +43,20 @@ export function ScoresPage({ sport }: Props) {
           {gameList.map((game: GameScore) => (
             <div key={game.gameId} className="bg-espn-dark border border-espn-gray-border rounded-sm p-4">
               <div className="flex justify-between items-center mb-3">
-                <span className={`text-xs font-bold ${
-                  game.status === 'in' ? 'text-green-400' : 'text-espn-text-muted'
-                }`}>
-                  {game.status === 'in' ? `LIVE - ${game.period} ${game.clock}` :
-                   game.status === 'post' ? 'FINAL' :
-                   new Date(game.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <span
+                  suppressHydrationWarning
+                  className={`text-xs font-bold ${
+                    game.status === 'in' ? 'text-green-400' : 'text-espn-text-muted'
+                  }`}
+                >
+                  {game.status === 'in'
+                    ? `LIVE - ${game.period} ${game.clock}`
+                    : game.status === 'post'
+                    ? 'FINAL'
+                    : new Date(game.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

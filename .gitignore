@@ -1,8 +1,8 @@
 node_modules/
 dist/
 .next/
+.env.example
 .env
-.env.local
 *.log
 coverage/
 .DS_Store

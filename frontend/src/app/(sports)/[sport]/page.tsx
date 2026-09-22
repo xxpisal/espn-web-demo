@@ -10,6 +10,15 @@ export default function SportRoute({ params }: PageProps) {
 
 export async function generateStaticParams() {
   return [
+    { sport: 'football' },
+    { sport: 'boxing' },
+    { sport: 'tennis' },
+    { sport: 'cycling' },
+    { sport: 'swimming' },
+    { sport: 'running' },
+    { sport: 'racing' },
+    { sport: 'volleyball' },
+    { sport: 'chess' },
     { sport: 'nfl' },
     { sport: 'nba' },
     { sport: 'mlb' },
@@ -19,7 +28,7 @@ export async function generateStaticParams() {
     { sport: 'ncaab' },
     { sport: 'f1' },
     { sport: 'golf' },
-    { sport: 'tennis' },
     { sport: 'mma' },
   ]
 }
+

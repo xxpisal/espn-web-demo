@@ -7,8 +7,8 @@ import { Footer } from '@/components/layout/Footer'
 import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
-  title: 'ESPN - Serving Sports Fans. Anytime. Anywhere.',
-  description: 'Visit ESPN for live scores, highlights and sports news. Stream exclusive games on ESPN and play fantasy sports.',
+  title: 'ESPN: Serving sports fans. Anytime. Anywhere. - Global Edition',
+  description: 'Visit ESPN Global for live scores, football transfers, highlights and sports news across Premier League, F1, Cricket, Tennis, NBA and international sports.',
   icons: {
     icon: '/favicon.ico',
   },
@@ -20,11 +20,29 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className="bg-espn-darker min-h-screen">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem('espn_theme');
+                if (theme === 'light') {
+                  document.documentElement.classList.add('light');
+                  document.documentElement.setAttribute('data-theme', 'light');
+                } else {
+                  document.documentElement.classList.add('dark');
+                  document.documentElement.setAttribute('data-theme', 'dark');
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
+      <body className="bg-espn-darker min-h-screen text-espn-text">
         <Providers>
-          <Navbar />
           <ScoresTicker />
+          <Navbar />
           <main className="min-h-screen">
             {children}
           </main>

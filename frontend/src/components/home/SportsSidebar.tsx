@@ -5,22 +5,43 @@ import { sportsApi, newsApi } from '@/lib/api';
 import Link from 'next/link';
 
 const SPORTS_STANDINGS = [
-  { id: 'nfl', label: 'NFL', league: 'nfl' },
+  { id: 'football', label: 'Football', league: 'epl' },
+  { id: 'f1', label: 'F1', league: 'f1' },
   { id: 'nba', label: 'NBA', league: 'nba' },
-  { id: 'mlb', label: 'MLB', league: 'mlb' },
-  { id: 'nhl', label: 'NHL', league: 'nhl' },
+  { id: 'tennis', label: 'Tennis', league: 'atp' },
 ];
 
-const MOCK_STANDINGS = [
-  { rank: 1, team: 'Kansas City Chiefs', abbr: 'KC', wins: 10, losses: 2 },
-  { rank: 2, team: 'Miami Dolphins', abbr: 'MIA', wins: 9, losses: 3 },
-  { rank: 3, team: 'Baltimore Ravens', abbr: 'BAL', wins: 8, losses: 4 },
-  { rank: 4, team: 'Dallas Cowboys', abbr: 'DAL', wins: 7, losses: 5 },
-  { rank: 5, team: 'Philadelphia Eagles', abbr: 'PHI', wins: 7, losses: 5 },
-];
+const MOCK_STANDINGS: Record<string, Array<{ rank: number; team: string; abbr: string; wins: number; losses: number }>> = {
+  football: [
+    { rank: 1, team: 'Liverpool', abbr: 'LIV', wins: 20, losses: 3 },
+    { rank: 2, team: 'Arsenal', abbr: 'ARS', wins: 18, losses: 4 },
+    { rank: 3, team: 'Manchester City', abbr: 'MCI', wins: 17, losses: 5 },
+    { rank: 4, team: 'Chelsea', abbr: 'CHE', wins: 15, losses: 6 },
+    { rank: 5, team: 'Real Madrid', abbr: 'RMA', wins: 19, losses: 2 },
+  ],
+  f1: [
+    { rank: 1, team: 'Max Verstappen', abbr: 'RBR', wins: 9, losses: 0 },
+    { rank: 2, team: 'Lando Norris', abbr: 'MCL', wins: 5, losses: 0 },
+    { rank: 3, team: 'Charles Leclerc', abbr: 'FER', wins: 4, losses: 0 },
+    { rank: 4, team: 'Lewis Hamilton', abbr: 'MER', wins: 2, losses: 0 },
+  ],
+  nba: [
+    { rank: 1, team: 'Boston Celtics', abbr: 'BOS', wins: 28, losses: 8 },
+    { rank: 2, team: 'Cleveland Cavaliers', abbr: 'CLE', wins: 29, losses: 7 },
+    { rank: 3, team: 'OKC Thunder', abbr: 'OKC', wins: 27, losses: 9 },
+    { rank: 4, team: 'LA Lakers', abbr: 'LAL', wins: 22, losses: 15 },
+  ],
+  tennis: [
+    { rank: 1, team: 'Jannik Sinner', abbr: 'ITA', wins: 52, losses: 6 },
+    { rank: 2, team: 'Carlos Alcaraz', abbr: 'ESP', wins: 48, losses: 9 },
+    { rank: 3, team: 'Alexander Zverev', abbr: 'GER', wins: 45, losses: 14 },
+    { rank: 4, team: 'Novak Djokovic', abbr: 'SRB', wins: 39, losses: 8 },
+  ],
+};
+
 
 export function SportsSidebar() {
-  const [activeSport, setActiveSport] = useState('nfl');
+  const [activeSport, setActiveSport] = useState('football');
 
   const { data: standings } = useQuery({
     queryKey: ['standings', activeSport],
@@ -34,7 +55,8 @@ export function SportsSidebar() {
     retry: false,
   });
 
-  const displayStandings = standings?.standings || MOCK_STANDINGS;
+  const displayStandings = standings?.standings || MOCK_STANDINGS[activeSport] || MOCK_STANDINGS.football;
+
 
   return (
     <div className="space-y-6">

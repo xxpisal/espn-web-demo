@@ -1,0 +1,8 @@
+$kind: http-request
+name: Get Top Headlines
+method: GET
+url: '{{baseUrl}}/news?limit=20'
+order: 1000
+queryParams:
+  - key: limit
+    value: '20'

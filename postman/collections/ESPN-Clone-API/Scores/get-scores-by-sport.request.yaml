@@ -1,0 +1,8 @@
+$kind: http-request
+name: Get Scores By Sport
+method: GET
+url: '{{baseUrl}}/scores/:sport'
+order: 2000
+pathVariables:
+  - key: sport
+    value: football

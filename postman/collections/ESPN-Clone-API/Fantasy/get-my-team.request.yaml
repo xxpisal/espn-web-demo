@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get My Team
+method: GET
+url: '{{baseUrl}}/fantasy/leagues/:leagueId/my-team'
+order: 3000
+pathVariables:
+  - key: leagueId
+    value: '1'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

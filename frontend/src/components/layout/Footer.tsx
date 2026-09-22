@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { EspnLogo } from '@/components/common/EspnLogo';
 
 export function Footer() {
   return (
     <footer className="bg-espn-darker border-t border-espn-gray-border mt-12 py-8">
       <div className="max-w-[1280px] mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           <div>
             <h4 className="text-white font-bold mb-3 text-sm">ESPN</h4>
             <ul className="space-y-2">
@@ -39,9 +40,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-espn-gray-border pt-4 text-center">
-          <div className="bg-espn-red text-white font-black text-xl px-3 py-1 inline-block mb-3 tracking-tighter">
-            ESPN
-          </div>
+          <EspnLogo className="h-8 w-auto mx-auto mb-3" />
           <p className="text-espn-text-muted text-xs">
             © {new Date().getFullYear()} ESPN Clone. All rights reserved. Built with Next.js, NestJS & TypeScript.
           </p>

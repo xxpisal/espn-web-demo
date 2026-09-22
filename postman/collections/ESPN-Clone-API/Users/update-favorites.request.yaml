@@ -1,0 +1,20 @@
+$kind: http-request
+name: Update Favorites
+method: PUT
+url: '{{baseUrl}}/users/favorites'
+order: 2000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "favoriteSports": ["football", "basketball"],
+      "favoriteTeams": ["team1", "team2"]
+    }

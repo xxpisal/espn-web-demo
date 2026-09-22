@@ -1,0 +1,8 @@
+$kind: http-request
+name: Search
+method: GET
+url: '{{baseUrl}}/search?q=Lakers'
+order: 1000
+queryParams:
+  - key: q
+    value: Lakers

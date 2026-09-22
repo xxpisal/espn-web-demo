@@ -1,4 +1,4 @@
-export type SportType = 'nfl' | 'nba' | 'mlb' | 'nhl' | 'soccer' | 'ncaaf' | 'ncaab' | 'f1' | 'tennis' | 'golf' | 'mma';
+export type SportType = 'nfl' | 'nba' | 'mlb' | 'nhl' | 'soccer' | 'football' | 'ncaaf' | 'ncaab' | 'f1' | 'tennis' | 'golf' | 'mma';
 
 export interface NavSport {
   id: SportType | string;
@@ -110,3 +110,62 @@ export interface FantasyLeague {
   myRank?: number;
   myScore?: number;
 }
+
+export interface TeacherSportItem {
+  id: number;
+  uuid: string;
+  name: string;
+  category?: {
+    name: string;
+  };
+  description: string;
+  imageUrls: string[];
+  createdAt: string;
+  updatedAt: string;
+  disabled?: boolean;
+}
+
+export interface TeacherCategoryItem {
+  id: number;
+  uuid: string;
+  name: string;
+  description?: string | null;
+  events?: TeacherEventItem[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TeacherEventItem {
+  id: number;
+  uuid: string;
+  name: string;
+  description: string;
+  category?: {
+    name: string;
+  };
+  categoryName?: string;
+  imageUrls: string[];
+  locationName?: string;
+  latitude?: number;
+  longitude?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TeacherCommentItem {
+  id?: number;
+  uuid?: string;
+  eventUuid: string;
+  comment: string;
+  createdAt?: string;
+}
+
+export interface TeacherFavoriteItem {
+  id?: string;
+  uuid?: string | null;
+  sportUuid?: string;
+  eventUuid?: string;
+  isDeleted?: boolean;
+  isFavorite?: boolean;
+}
+

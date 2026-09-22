@@ -1,0 +1,10 @@
+$kind: http-request
+name: Get My Leagues
+method: GET
+url: '{{baseUrl}}/fantasy/leagues'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

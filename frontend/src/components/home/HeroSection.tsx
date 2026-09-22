@@ -1,17 +1,22 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import { newsApi } from '@/lib/api';
-import { NewsArticle } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
+import { ArrowRight } from 'lucide-react';
+import { TeacherSportItem } from '@/types';
+import { teacherSportsApi } from '@/lib/api';
 
 const SPORT_COLORS: Record<string, string> = {
-  nfl: 'bg-[#013369]',
-  nba: 'bg-[#006BB6]',
-  mlb: 'bg-[#002D72]',
-  nhl: 'bg-[#000000]',
-  soccer: 'bg-[#2C7F3F]',
+  boxing: 'bg-red-700',
+  football: 'bg-[#013369]',
+  tennis: 'bg-emerald-700',
+  cycling: 'bg-amber-600',
+  swimming: 'bg-blue-600',
+  running: 'bg-orange-600',
+  racing: 'bg-purple-700',
+  volleyball: 'bg-pink-700',
+  chess: 'bg-neutral-800',
   default: 'bg-espn-red',
 };
 
@@ -23,87 +28,108 @@ const FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&q=80',
 ];
 
-function ArticleCard({ article, index }: { article: NewsArticle; index: number }) {
-  const image = article.images?.[0]?.url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
-  const sportColor = SPORT_COLORS[article.sport || 'default'] || SPORT_COLORS.default;
-  const timeAgo = article.published ? formatDistanceToNow(new Date(article.published), { addSuffix: true }) : '';
+export function HeroSection() {
+  const { data: sports = [] } = useQuery<TeacherSportItem[]>({
+    queryKey: ['teacher-hero-sports'],
+    queryFn: async () => {
+      try {
+        const res = await teacherSportsApi.getAllSports();
+        return Array.isArray(res.data) ? res.data : [];
+      } catch (e) {
+        return [];
+      }
+    },
+  });
 
-  if (index === 0) {
+
+  const displayItems = sports.slice(0, 5);
+
+  if (displayItems.length === 0) {
     return (
-      <div className="relative col-span-2 md:col-span-1 row-span-2 group cursor-pointer overflow-hidden rounded-sm">
-        <div className="relative h-[400px] w-full">
+      <div className="h-64 bg-espn-dark rounded-md animate-pulse flex items-center justify-center text-espn-text-muted">
+        Loading featured stories...
+      </div>
+    );
+  }
+
+  const featured = displayItems[0];
+  const others = displayItems.slice(1, 5);
+
+  const featuredCategory = featured.category?.name || 'Sport';
+  const featuredColor = SPORT_COLORS[featuredCategory.toLowerCase()] || SPORT_COLORS.default;
+  const featuredImg = featured.imageUrls?.[0] || FALLBACK_IMAGES[0];
+
+  return (
+    <section className="mt-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 h-auto md:h-[420px]">
+        {/* Main Large Hero Card - Clickable */}
+        <Link
+          href={`/sport-detail/${featured.uuid}`}
+          className="relative col-span-1 md:col-span-2 row-span-2 group overflow-hidden rounded-md border border-espn-gray-border hover:border-espn-red transition-all block h-[320px] md:h-full"
+        >
           <Image
-            src={image}
-            alt={article.headline}
+            src={featuredImg}
+            alt={featured.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, 50vw"
             unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <span className={`${sportColor} text-white text-[10px] font-bold px-2 py-0.5 uppercase mb-2 inline-block`}>
-            {article.sport?.toUpperCase()}
-          </span>
-          <h2 className="text-white text-2xl font-black leading-tight line-clamp-3">
-            {article.headline}
-          </h2>
-          <p className="text-espn-text-muted text-sm mt-1">{timeAgo}</p>
-        </div>
-      </div>
-    );
-  }
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-5">
+            <span className={`${featuredColor} text-white text-[10px] font-black px-2.5 py-0.5 uppercase mb-2 inline-block rounded-sm`}>
+              {featuredCategory}
+            </span>
+            <h2 className="text-white text-xl md:text-2xl font-black leading-tight line-clamp-3 group-hover:text-espn-red transition-colors">
+              {featured.name}
+            </h2>
+            <p className="text-gray-300 text-xs mt-1.5 line-clamp-2 font-light">
+              {featured.description}
+            </p>
+            <div className="flex items-center gap-1.5 text-espn-red text-xs font-bold mt-2.5">
+              <span>Click to view story</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
+        </Link>
 
-  return (
-    <div className="group cursor-pointer overflow-hidden rounded-sm flex flex-col">
-      <div className="relative h-[190px] w-full overflow-hidden">
-        <Image
-          src={image}
-          alt={article.headline}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-          sizes="(max-width: 768px) 100vw, 25vw"
-          unoptimized
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-        <span className={`absolute top-2 left-2 ${sportColor} text-white text-[10px] font-bold px-2 py-0.5 uppercase`}>
-          {article.sport?.toUpperCase()}
-        </span>
-      </div>
-      <div className="bg-espn-dark p-3 flex-1">
-        <h3 className="text-white text-sm font-bold leading-tight line-clamp-2 group-hover:text-espn-red transition-colors">
-          {article.headline}
-        </h3>
-        <p className="text-espn-text-muted text-xs mt-1">{timeAgo}</p>
-      </div>
-    </div>
-  );
-}
+        {/* 4 Secondary Cards - All Clickable */}
+        {others.map((item, idx) => {
+          const cat = item.category?.name || 'Sport';
+          const badgeColor = SPORT_COLORS[cat.toLowerCase()] || SPORT_COLORS.default;
+          const img = item.imageUrls?.[0] || FALLBACK_IMAGES[(idx + 1) % FALLBACK_IMAGES.length];
 
-const MOCK_ARTICLES: NewsArticle[] = [
-  { id: '1', headline: 'Chiefs Pull Off Stunning Last-Minute Victory Over Bills in Thriller', description: '...', sport: 'nfl', published: new Date(Date.now() - 7200000).toISOString(), images: [{ url: FALLBACK_IMAGES[0] }] },
-  { id: '2', headline: 'LeBron Scores 40 Points as Lakers Defeat Warriors in Overtime', description: '...', sport: 'nba', published: new Date(Date.now() - 3600000).toISOString(), images: [{ url: FALLBACK_IMAGES[1] }] },
-  { id: '3', headline: 'Yankees Ace Dominates in Playoff Clinching Performance', description: '...', sport: 'mlb', published: new Date(Date.now() - 1800000).toISOString(), images: [{ url: FALLBACK_IMAGES[2] }] },
-  { id: '4', headline: 'World Cup Final Preview: Argentina vs France Rematch Looms', description: '...', sport: 'soccer', published: new Date(Date.now() - 900000).toISOString(), images: [{ url: FALLBACK_IMAGES[3] }] },
-  { id: '5', headline: 'Ovechkin Closes in on All-Time Goals Record with Hat Trick', description: '...', sport: 'nhl', published: new Date(Date.now() - 5400000).toISOString(), images: [{ url: FALLBACK_IMAGES[4] }] },
-];
-
-export function HeroSection() {
-  const { data: articles } = useQuery({
-    queryKey: ['top-news-hero'],
-    queryFn: () => newsApi.getTopHeadlines(10).then(r => r.data),
-    retry: false,
-  });
-
-  const displayArticles = (Array.isArray(articles) && articles.length > 0 ? articles : MOCK_ARTICLES).slice(0, 5);
-
-  return (
-    <section className="mt-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 h-auto md:h-[400px]">
-        {displayArticles.map((article, i) => (
-          <ArticleCard key={article.id} article={article} index={i} />
-        ))}
+          return (
+            <Link
+              key={item.uuid}
+              href={`/sport-detail/${item.uuid}`}
+              className="group overflow-hidden rounded-md border border-espn-gray-border hover:border-espn-red transition-all flex flex-col bg-espn-dark"
+            >
+              <div className="relative h-[120px] md:h-[130px] w-full overflow-hidden bg-espn-gray">
+                <Image
+                  src={img}
+                  alt={item.name}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                  unoptimized
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                <span className={`absolute top-2 left-2 ${badgeColor} text-white text-[9px] font-black px-2 py-0.5 uppercase rounded-sm`}>
+                  {cat}
+                </span>
+              </div>
+              <div className="p-3 flex-1 flex flex-col justify-between">
+                <h3 className="text-white text-xs font-bold leading-snug line-clamp-2 group-hover:text-espn-red transition-colors">
+                  {item.name}
+                </h3>
+                <span className="text-espn-red text-[10px] font-bold mt-2 flex items-center gap-1">
+                  View details <ArrowRight className="w-2.5 h-2.5" />
+                </span>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );
