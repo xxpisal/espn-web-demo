@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{base_url}}comments"
+method: POST
+body:
+  type: json
+  content: |
+    {
+      "eventUuid": "7bf91bc9-e10d-4902-90e7-911c1faec3a7",
+      "comment": "This was an exciting match! Really enjoyed the last-minute goal."
+    }
+order: 1000

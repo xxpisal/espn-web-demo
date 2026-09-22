@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{base_url}}upload"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: file
+      key: files
+      src: ""
+order: 2000

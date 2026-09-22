@@ -1,0 +1,4 @@
+$kind: http-request
+url: https://sport-api.eunglyzhia.com/api/v1/sports
+method: GET
+order: 2000

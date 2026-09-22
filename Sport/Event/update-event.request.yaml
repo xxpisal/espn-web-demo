@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{base_url}}events/{{uuid}}"
+method: PATCH
+body:
+  type: json
+  content: |+
+    {
+      "name": "Football Training Ground",
+      "description": "A well maintained outdoor football ground equipped with floodlights, changing rooms, and synthetic turf for both day and night matches.",
+      "imageUrls": [
+        "https://sport-hub.eunglyzhia.social/images/62186125-29ef-4d0e-b714-4412f581ef92.webp"
+      ],
+      "locationName": "Phnom Penh National Stadium",
+      "latitude": 11.567089,
+      "longitude": 104.910151
+    }
+
+order: 4000

@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{base_url}}sports"
+method: POST
+body:
+  type: json
+  content: |
+    {
+      "name": "Adidas Training Cones",
+      "description": "Flexible and durable cones designed for football drills and agility training. Ideal for coaches and players of all levels.",
+      "imageUrls": [
+        "https://sport-hub.eunglyzhia.social/images/7d3c9b1e-a234-4e7e-baad-f892c32a4470.webp"
+      ],
+      "categoryName": "Football"
+    }
+order: 1000

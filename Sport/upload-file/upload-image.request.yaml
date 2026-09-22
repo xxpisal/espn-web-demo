@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{base_url}}upload"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src: /Users/eunglyzhia/Downloads/most-expensive-football-training-grounds.webp
+examples: ./.resources/upload-image.resources/examples
+order: 1000

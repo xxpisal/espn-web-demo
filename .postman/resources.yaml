@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: cb464ef1-604d-455e-8b0a-3f78e97c50d4
+
+localResources:
+  collections:
+    - ../Sport
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../Sport: 0bfa0716-3ca4-4657-ae73-c023cd0f2397

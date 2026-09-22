@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{base_url}}sport_categories/{{uuid}}"
+method: PATCH
+body:
+  type: json
+  content: |
+    {
+      "name": "Football",
+      "description": "A standard size football suitable for both training and professional matches. Made with durable materials for long-lasting performance."
+    }
+order: 4000

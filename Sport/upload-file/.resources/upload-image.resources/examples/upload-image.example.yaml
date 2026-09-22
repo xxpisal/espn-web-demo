@@ -1,0 +1,41 @@
+$kind: http-example
+request:
+  url: "{{base_url}}upload"
+  method: POST
+  body:
+    type: formdata
+    content:
+      - type: file
+        key: file
+        src:
+          - /Users/eunglyzhia/Downloads/Introduction to JavaScript (5).png
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    - key: Server
+      value: nginx/1.18.0 (Ubuntu)
+    - key: Date
+      value: Fri, 13 Mar 2026 04:10:04 GMT
+    - key: Content-Type
+      value: application/json
+    - key: Transfer-Encoding
+      value: chunked
+    - key: Connection
+      value: keep-alive
+    - key: Vary
+      value: Origin
+    - key: Vary
+      value: Access-Control-Request-Method
+    - key: Vary
+      value: Access-Control-Request-Headers
+  body:
+    type: text
+    content: |-
+      {
+          "error": {
+              "code": 500,
+              "reason": "File upload failed"
+          }
+      }
+order: 1000

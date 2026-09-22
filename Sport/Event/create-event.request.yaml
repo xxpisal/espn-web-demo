@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{base_url}}events"
+method: POST
+body:
+  type: json
+  content: |
+    {
+      "name": "City Riverside Footer Court",
+      "description": "An open-air footer court located along the riverside, featuring smooth flooring, lighting for night games, and shaded seating areas for spectators.",
+      "imageUrls": [
+        "https://sport-hub.eunglyzhia.social/images/93b0df45-78a2-4f4b-98e2-bb7a673b23af.webp"
+      ],
+      "locationName": "Phnom Penh Riverside Sports Complex",
+      "latitude": 11.572356,
+      "longitude": 104.923874,
+      "categoryName": "Football"
+    }
+order: 1000

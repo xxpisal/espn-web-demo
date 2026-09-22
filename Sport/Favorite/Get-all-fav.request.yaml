@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{base_url}}favorites"
+method: GET
+body:
+  type: json
+  content: ""
+settings: {}
+order: 2000

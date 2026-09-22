@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{base_url}}events/{{uuid}}"
+method: GET
+body:
+  type: text
+  content: |
+    {
+      "name": "Premier League Ball",
+      "description": "High-quality football used in professional Premier League matches. Durable and suitable for all weather condition.",
+      "imageUrls": [
+        "https://sport-hub.eunglyzhia.social/images/8c5422a8-5da9-4eb4-abd6-20f821b43367.webp"
+      ],
+      "categoryName": "Football"
+    }
+settings: {}
+order: 3000

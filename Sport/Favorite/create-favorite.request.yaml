@@ -1,0 +1,11 @@
+$kind: http-request
+url: http://localhost:8080/api/v1/favorites
+method: POST
+body:
+  type: json
+  content: |
+    {
+      "sportUuid": "7fbab651-d332-460b-a834-616d52f82eac" ,
+      "eventUuid": ""
+    }
+order: 1000
