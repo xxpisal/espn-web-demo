@@ -1,9 +1,10 @@
 import { SportDetailPage } from '@/components/sport/SportDetailPage';
 
 interface PageProps {
-  params: { uuid: string };
+  params: Promise<{ uuid: string }>;
 }
 
-export default function SportDetailRoute({ params }: PageProps) {
-  return <SportDetailPage uuid={params.uuid} />;
+export default async function SportDetailRoute({ params }: PageProps) {
+  const { uuid } = await params;
+  return <SportDetailPage uuid={uuid} />;
 }

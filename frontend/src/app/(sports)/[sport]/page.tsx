@@ -1,11 +1,12 @@
 import { SportPage } from '@/components/sport/SportPage'
 
 interface PageProps {
-  params: { sport: string }
+  params: Promise<{ sport: string }>;
 }
 
-export default function SportRoute({ params }: PageProps) {
-  return <SportPage sport={params.sport} />
+export default async function SportRoute({ params }: PageProps) {
+  const { sport } = await params;
+  return <SportPage sport={sport} />;
 }
 
 export async function generateStaticParams() {

@@ -1,6 +1,6 @@
 'use client';
 
-export const ESPN_LOGO_URL = 'https://1000logos.net/wp-content/uploads/2021/05/ESPN-logo.png';
+export const ESPN_LOGO_URL = '/espn-logo.png';
 
 interface EspnLogoProps {
   className?: string;
@@ -19,8 +19,8 @@ export function EspnLogo({
       loading="eager"
       onError={(e) => {
         const target = e.currentTarget;
-        if (!target.src.endsWith('/espn-logo.png')) {
-          target.src = '/espn-logo.png';
+        if (!target.src.includes('1000logos.net')) {
+          target.src = 'https://1000logos.net/wp-content/uploads/2021/05/ESPN-logo.png';
         }
       }}
     />

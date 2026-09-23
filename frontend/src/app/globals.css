@@ -1,27 +1,50 @@
+/* Inter font from Google Fonts — must be first before @tailwind */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   CSS CUSTOM PROPERTIES — DARK (DEFAULT)
+   ========================================================================== */
+
 :root,
 html.dark {
-  --espn-bg: #111111;
-  --espn-card: #1a1a1a;
-  --espn-sub: #2d2d2d;
-  --espn-sub-light: #3d3d3d;
-  --espn-border: #383838;
-  --espn-text: #d0d0d0;
-  --espn-text-muted: #888888;
+  --espn-bg: #0e0e0e;
+  --espn-card: #181818;
+  --espn-card-hover: #202020;
+  --espn-sub: #252525;
+  --espn-sub-light: #333333;
+  --espn-border: #2e2e2e;
+  --espn-border-bright: #404040;
+  --espn-text: #f3f4f6;
+  --espn-text-muted: #9ca3af;
+  --espn-accent: #CC0000;
+  --espn-accent-glow: rgba(204, 0, 0, 0.18);
 }
 
+/* ==========================================================================
+   CSS CUSTOM PROPERTIES — LIGHT
+   ========================================================================== */
+
 html.light {
-  --espn-bg: #f1f2f4;
+  --espn-bg: #f0f2f5;
   --espn-card: #ffffff;
-  --espn-sub: #f8fafc;
-  --espn-sub-light: #e2e8f0;
-  --espn-border: #e2e8f0;
-  --espn-text: #1e293b;
-  --espn-text-muted: #64748b;
+  --espn-card-hover: #f8fafc;
+  --espn-sub: #f4f6f8;
+  --espn-sub-light: #e8ecf0;
+  --espn-border: #e1e4e8;
+  --espn-border-bright: #cbd2da;
+  --espn-text: #111827;
+  --espn-text-muted: #4b5563;
+  --espn-accent: #CC0000;
+  --espn-accent-glow: rgba(204, 0, 0, 0.1);
 }
+
+/* ==========================================================================
+   BASE RESET & GLOBAL STYLES
+   ========================================================================== */
 
 * {
   box-sizing: border-box;
@@ -35,8 +58,12 @@ body {
   overflow-x: hidden;
   background-color: var(--espn-bg);
   color: var(--espn-text);
-  font-family: Arial, Helvetica, sans-serif;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -45,75 +72,152 @@ a {
 }
 
 /* ==========================================================================
-   LIGHT MODE TYPOGRAPHY & CONTRAST
+   LIGHT MODE OVERRIDES & TEXT CONTRAST
    ========================================================================== */
 
-/* Headings in light mode */
-html.light main h1,
-html.light main h2,
-html.light main h3,
-html.light main h4,
-html.light main h5,
-html.light main h6 {
+/* All headings in light mode turn dark slate UNLESS in protected dark containers */
+html.light main h1:not(.keep-white):not(.hero-overlay *):not(.dark-card *),
+html.light main h2:not(.keep-white):not(.hero-overlay *):not(.dark-card *),
+html.light main h3:not(.keep-white):not(.hero-overlay *):not(.dark-card *),
+html.light main h4:not(.keep-white):not(.hero-overlay *):not(.dark-card *),
+html.light main h5:not(.keep-white):not(.hero-overlay *):not(.dark-card *),
+html.light main h6:not(.keep-white):not(.hero-overlay *):not(.dark-card *) {
   color: #0f172a;
 }
 
-/* Primary text inside cards in light mode */
-html.light main .bg-espn-dark .text-white,
-html.light main .bg-espn-darker .text-white,
-html.light main .text-white {
+/* Inside light theme cards, white text defaults to dark slate */
+html.light .bg-espn-dark .text-white:not(.keep-white):not(.hero-overlay *):not(.dark-card *):not(.espn-badge),
+html.light .bg-espn-darker .text-white:not(.keep-white):not(.hero-overlay *):not(.dark-card *):not(.espn-badge),
+html.light main .text-white:not(.keep-white):not(.hero-overlay *):not(.dark-card *):not(.espn-badge):not([class*="bg-red"]):not([class*="bg-espn-red"]):not(button.bg-espn-red *):not(a.bg-espn-red *) {
   color: #0f172a;
 }
 
-/* Card hover and borders */
+/* Muted & secondary text inside light theme cards mapped to high-contrast accessible shades */
+html.light .bg-espn-dark .text-gray-200:not(.keep-white *):not(.hero-overlay *):not(.dark-card *),
+html.light main .text-gray-200:not(.keep-white *):not(.hero-overlay *):not(.dark-card *) {
+  color: #1e293b;
+}
+
+html.light .bg-espn-dark .text-gray-300:not(.keep-white *):not(.hero-overlay *):not(.dark-card *),
+html.light main .text-gray-300:not(.keep-white *):not(.hero-overlay *):not(.dark-card *) {
+  color: #334155;
+}
+
+html.light .bg-espn-dark .text-gray-400:not(.keep-white *):not(.hero-overlay *):not(.dark-card *),
+html.light main .text-gray-400:not(.keep-white *):not(.hero-overlay *):not(.dark-card *) {
+  color: #475569;
+}
+
+html.light .bg-espn-dark .text-gray-500:not(.keep-white *):not(.hero-overlay *):not(.dark-card *),
+html.light main .text-gray-500:not(.keep-white *):not(.hero-overlay *):not(.dark-card *) {
+  color: #64748b;
+}
+
+html.light .bg-espn-dark .text-gray-600:not(.keep-white *):not(.hero-overlay *):not(.dark-card *),
+html.light main .text-gray-600:not(.keep-white *):not(.hero-overlay *):not(.dark-card *) {
+  color: #64748b;
+}
+
+/* Links inside light cards turn ESPN Red or dark slate on hover, NOT white */
+html.light main .hover\:text-white:hover:not(.keep-white *):not(.hero-overlay *):not(.dark-card *):not(.bg-espn-red):not([class*="bg-red"]),
+html.light main .group:hover .group-hover\:text-white:not(.keep-white *):not(.hero-overlay *):not(.dark-card *):not(.bg-espn-red):not([class*="bg-red"]) {
+  color: #CC0000 !important;
+}
+
+html.light main .hover\:text-gray-200:hover:not(.keep-white *):not(.hero-overlay *):not(.dark-card *) {
+  color: #0f172a !important;
+}
+
+html.light main .group:hover .group-hover\:text-gray-200:not(.keep-white *):not(.hero-overlay *):not(.dark-card *) {
+  color: #0f172a !important;
+}
+
+html.light main .hover\:bg-white\/5:hover,
+html.light main .hover\:bg-white\/8:hover,
+html.light main .hover\:bg-white\/10:hover,
+html.light main .hover\:bg-white\/4:hover,
+html.light main .hover\:bg-white\/3:hover,
+html.light main .hover\:bg-white\/2:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
 html.light .bg-espn-dark {
   background-color: #ffffff;
-  border-color: #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  border-color: #e1e4e8;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 html.light .border-espn-gray-border {
-  border-color: #e2e8f0;
+  border-color: #e1e4e8;
 }
 
-/* ==========================================================================
-   EXCEPTIONS: TEXT THAT MUST STAY WHITE IN LIGHT MODE
-   ========================================================================== */
-
-/* 1. Hero cards with dark photo gradient overlays */
-html.light [class*="from-black"] *,
-html.light [class*="from-black"] h1,
-html.light [class*="from-black"] h2,
-html.light [class*="from-black"] h3,
-html.light [class*="from-black"] h4,
-html.light [class*="from-black"] p,
-html.light [class*="from-black"] span {
-  color: #ffffff !important;
-}
-
-/* 2. Red brand buttons, pills & badges */
+/* Dark overlays, hero media, video previews, and colored elements ALWAYS keep white text */
+.keep-white,
+.keep-white *,
+.hero-overlay,
+.hero-overlay *,
+.dark-card,
+.dark-card *,
+html.light .keep-white,
+html.light .keep-white *,
+html.light .hero-overlay,
+html.light .hero-overlay *,
+html.light .dark-card,
+html.light .dark-card *,
 html.light .bg-espn-red,
 html.light .bg-espn-red *,
 html.light button.bg-espn-red,
 html.light button.bg-espn-red *,
 html.light a.bg-espn-red,
 html.light a.bg-espn-red *,
-html.light span[class*="bg-red-"],
-html.light span[class*="bg-red-"] *,
+html.light [class*="bg-red-"],
 html.light [class*="bg-red-"] *,
+html.light [class*="bg-blue-"],
 html.light [class*="bg-blue-"] *,
+html.light [class*="bg-emerald-"],
 html.light [class*="bg-emerald-"] *,
+html.light [class*="bg-amber-"],
 html.light [class*="bg-amber-"] *,
+html.light [class*="bg-purple-"],
 html.light [class*="bg-purple-"] *,
+html.light [class*="bg-neutral-800"],
 html.light [class*="bg-neutral-800"] *,
-html.light .keep-white {
+html.light .espn-badge {
   color: #ffffff !important;
 }
 
-/* 3. Scores Ticker: stays dark and legible */
+/* Specific sub-elements in dark containers that keep their colored accents */
+.dark-card .text-amber-400,
+.hero-overlay .text-amber-400 {
+  color: #fbbf24 !important;
+}
+.dark-card .text-green-400,
+.hero-overlay .text-green-400 {
+  color: #4ade80 !important;
+}
+.dark-card .text-espn-red,
+.hero-overlay .text-espn-red {
+  color: #CC0000 !important;
+}
+.dark-card .text-blue-200\/70 {
+  color: rgba(191, 219, 254, 0.75) !important;
+}
+.dark-card .text-gray-200 {
+  color: #e5e7eb !important;
+}
+.dark-card .text-gray-300,
+.hero-overlay .text-gray-300 {
+  color: #d1d5db !important;
+}
+.dark-card .text-gray-400,
+.hero-overlay .text-gray-400 {
+  color: #9ca3af !important;
+}
+
+/* Scores Ticker & Nav Header: always dark broadcast bar */
 html.light .score-ticker-container,
 html.light .score-ticker {
-  background-color: #111111;
+  background-color: #080808;
 }
 
 html.light .score-ticker .text-white {
@@ -121,7 +225,7 @@ html.light .score-ticker .text-white {
 }
 
 /* ==========================================================================
-   ANIMATIONS & SCROLLBARS
+   SCORES TICKER ANIMATION
    ========================================================================== */
 
 .score-ticker {
@@ -142,6 +246,10 @@ html.light .score-ticker .text-white {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* ==========================================================================
+   TEXT UTILITIES
+   ========================================================================== */
 
 .line-clamp-1 {
   display: -webkit-box;
@@ -164,32 +272,128 @@ html.light .score-ticker .text-white {
   overflow: hidden;
 }
 
+/* ==========================================================================
+   SKELETON SHIMMER
+   ========================================================================== */
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--espn-sub) 25%,
+    var(--espn-sub-light) 50%,
+    var(--espn-sub) 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   CARD GLOW EFFECT
+   ========================================================================== */
+
+.card-glow {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255,255,255,0.04) inset;
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.card-glow:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--espn-border-bright), 0 1px 0 rgba(255,255,255,0.05) inset;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   ESPN RED BADGE PILL
+   ========================================================================== */
+
+.espn-badge {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #CC0000 0%, #990000 100%);
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   LIVE PULSE DOT
+   ========================================================================== */
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  animation: pulseDot 1.4s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ==========================================================================
+   SCROLLBARS
+   ========================================================================== */
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
 html.dark * {
   scrollbar-width: thin;
-  scrollbar-color: #444 #1a1a1a;
+  scrollbar-color: #3a3a3a #181818;
 }
 
 html.light * {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
+  scrollbar-color: #c8d0da #f0f2f5;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
-html.dark ::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
-html.dark ::-webkit-scrollbar-thumb {
-  background-color: #444;
+
+html.dark ::-webkit-scrollbar-track { background: #181818; }
+html.dark ::-webkit-scrollbar-thumb { background-color: #3a3a3a; border-radius: 4px; }
+html.dark ::-webkit-scrollbar-thumb:hover { background-color: #505050; }
+
+html.light ::-webkit-scrollbar-track { background: #f0f2f5; }
+html.light ::-webkit-scrollbar-thumb { background-color: #c8d0da; border-radius: 4px; }
+html.light ::-webkit-scrollbar-thumb:hover { background-color: #a0aab5; }
+
+/* ==========================================================================
+   FOCUS STYLES
+   ========================================================================== */
+
+:focus-visible {
+  outline: 2px solid #CC0000;
+  outline-offset: 2px;
   border-radius: 3px;
 }
 
-html.light ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+/* ==========================================================================
+   GLASSMORPHISM HELPER
+   ========================================================================== */
+
+.glass {
+  background: rgba(24, 24, 24, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.07);
 }
-html.light ::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 3px;
+
+html.light .glass {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0,0,0,0.08);
 }

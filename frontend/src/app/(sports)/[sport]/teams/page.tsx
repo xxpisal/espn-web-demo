@@ -1,9 +1,10 @@
 import { TeamsPage } from '@/components/sport/TeamsPage'
 
 interface PageProps {
-  params: { sport: string }
+  params: Promise<{ sport: string }>;
 }
 
-export default function TeamsRoute({ params }: PageProps) {
-  return <TeamsPage sport={params.sport} />
+export default async function TeamsRoute({ params }: PageProps) {
+  const { sport } = await params;
+  return <TeamsPage sport={sport} />;
 }

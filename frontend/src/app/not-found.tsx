@@ -1,29 +1,43 @@
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
 import { EspnLogo } from '@/components/common/EspnLogo';
 
 export default function NotFound() {
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-espn-dark border border-espn-gray-border p-8 rounded-md text-center space-y-4">
-        <EspnLogo className="h-12 w-auto mx-auto" />
-        <h1 className="text-4xl font-black text-white">404</h1>
-        <h2 className="text-xl font-bold text-gray-200">Page Not Found</h2>
-        <p className="text-sm text-espn-text-muted">
-          The page or sport you are looking for does not exist or has been moved.
-        </p>
-        <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+    <div className="min-h-[75vh] flex items-center justify-center px-4">
+      <div
+        className="max-w-md w-full rounded-2xl p-10 text-center space-y-5 animate-fade-in"
+        style={{
+          background: 'var(--espn-card)',
+          border: '1px solid var(--espn-border)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+        }}
+      >
+        <EspnLogo className="h-10 w-auto mx-auto opacity-80" />
+
+        <div>
+          <div className="text-7xl font-black text-espn-red mb-1" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            404
+          </div>
+          <h2 className="text-xl font-black text-espn-text">Page Not Found</h2>
+          <p className="text-sm text-espn-text-muted mt-2 leading-relaxed">
+            The page or sport you are looking for does not exist or has been moved.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 bg-espn-red text-white px-5 py-2.5 rounded font-bold text-sm hover:bg-espn-red-dark transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-all duration-200 hover:opacity-90 keep-white"
+            style={{ background: 'linear-gradient(135deg, #CC0000 0%, #990000 100%)' }}
           >
-            <ArrowLeft className="w-4 h-4" /> Go to Home
+            <Home className="w-4 h-4" /> Go Home
           </Link>
           <Link
             href="/sports"
-            className="inline-flex items-center justify-center bg-espn-gray border border-espn-gray-border text-white px-5 py-2.5 rounded font-bold text-sm hover:bg-espn-gray-light transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-espn-text hover:bg-espn-sub transition-all duration-200 border border-espn-gray-border"
           >
-            Browse All Sports
+            <ArrowLeft className="w-4 h-4" /> Browse Sports
           </Link>
         </div>
       </div>

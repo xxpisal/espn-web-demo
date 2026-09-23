@@ -152,6 +152,8 @@ export interface TeacherEventItem {
   updatedAt?: string;
 }
 
+export type SportDetailItem = TeacherSportItem | TeacherEventItem;
+
 export interface TeacherCommentItem {
   id?: number;
   uuid?: string;
@@ -168,4 +170,3 @@ export interface TeacherFavoriteItem {
   isDeleted?: boolean;
   isFavorite?: boolean;
 }
-

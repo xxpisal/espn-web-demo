@@ -1,9 +1,10 @@
 import { ScoresPage } from '@/components/sport/ScoresPage'
 
 interface PageProps {
-  params: { sport: string }
+  params: Promise<{ sport: string }>;
 }
 
-export default function ScoresRoute({ params }: PageProps) {
-  return <ScoresPage sport={params.sport} />
+export default async function ScoresRoute({ params }: PageProps) {
+  const { sport } = await params;
+  return <ScoresPage sport={sport} />;
 }

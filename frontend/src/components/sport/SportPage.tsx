@@ -1,39 +1,18 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import { newsApi, scoresApi, teacherSportsApi } from '@/lib/api';
-import { NewsArticle, GameScore, SportType, TeacherSportItem, TeacherEventItem } from '@/types';
+import { newsApi, scoresApi } from '@/lib/api';
+import { NewsArticle, GameScore, SportType } from '@/types';
+import { useSportsByCategory, useEventsByCategory } from '@/lib/hooks';
+import { SPORT_DISPLAY_NAMES, FALLBACK_IMAGES } from '@/lib/constants';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import { ArrowRight, MapPin, Calendar } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
 
-const SPORT_DISPLAY_NAMES: Record<string, string> = {
-  football: 'Football',
-  boxing: 'Boxing',
-  tennis: 'Tennis',
-  cycling: 'Cycling',
-  swimming: 'Swimming',
-  running: 'Running',
-  racing: 'Racing',
-  volleyball: 'Volleyball',
-  chess: 'Chess',
-  nfl: 'NFL',
-  nba: 'NBA',
-  mlb: 'MLB',
-  nhl: 'NHL',
-  soccer: 'Soccer',
-  ncaaf: 'College Football',
-  ncaab: 'College Basketball',
-  f1: 'Formula 1',
-  golf: 'Golf',
-  mma: 'MMA',
-};
-
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600&q=80',
-  'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&q=80',
-  'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&q=80',
-];
+const CATEGORY_CHIPS = [
+  'Football', 'Boxing', 'Tennis', 'Cycling', 'Swimming',
+  'Running', 'Racing', 'Volleyball', 'Chess',
+] as const;
 
 interface Props {
   sport: string;
@@ -43,40 +22,10 @@ export function SportPage({ sport }: Props) {
   const sportKey = sport.toLowerCase();
   const sportName = SPORT_DISPLAY_NAMES[sportKey] || sport.toUpperCase();
 
-  // Fetch teacher sports
-  const { data: teacherSports = [] } = useQuery<TeacherSportItem[]>({
-    queryKey: ['teacher-sports', sportKey],
-    queryFn: async () => {
-      try {
-        const res = await teacherSportsApi.getAllSports();
-        const all: TeacherSportItem[] = Array.isArray(res.data) ? res.data : [];
-        return all.filter((s) => s.category?.name?.toLowerCase() === sportKey);
-      } catch (e) {
-        return [];
-      }
-    },
-  });
+  const { data: teacherSports = [] } = useSportsByCategory(sportKey);
+  const { data: teacherEvents = [] } = useEventsByCategory(sportKey);
 
-  // Fetch teacher events for this category
-  const { data: teacherEvents = [] } = useQuery<TeacherEventItem[]>({
-    queryKey: ['teacher-events', sportKey],
-    queryFn: async () => {
-      try {
-        const res = await teacherSportsApi.getEvents();
-        const all: TeacherEventItem[] = Array.isArray(res.data) ? res.data : [];
-        return all.filter(
-          (e) =>
-            e.category?.name?.toLowerCase() === sportKey ||
-            (e as any).categoryName?.toLowerCase() === sportKey,
-        );
-      } catch (e) {
-        return [];
-      }
-    },
-  });
-
-
-  // Fallback news
+  // Fallback news if no teacher sports are registered for this category
   const { data: news } = useQuery({
     queryKey: ['sport-news', sport],
     queryFn: () => newsApi.getBySport(sport as SportType, 12).then((r) => r.data),
@@ -91,7 +40,7 @@ export function SportPage({ sport }: Props) {
   });
 
   const displayNews = (Array.isArray(news) ? news : []).slice(0, 12);
-  const displayScores = (Array.isArray(scores) ? scores : []).slice(0, 6);
+  const displayScores: GameScore[] = (Array.isArray(scores) ? scores : []).slice(0, 6);
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 py-6">
@@ -99,16 +48,16 @@ export function SportPage({ sport }: Props) {
       <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-espn-gray-border pb-4 mb-6 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-espn-red text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-sm">
+            <span className="keep-white bg-espn-red text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-sm">
               Category
             </span>
-            <span className="text-xs text-espn-text-muted">sport-api.eunglyzhia.com</span>
+            <span className="text-xs text-espn-text-muted font-medium">ESPN Coverage</span>
           </div>
-          <h1 className="text-white font-black text-3xl md:text-4xl">{sportName}</h1>
+          <h1 className="text-espn-text font-black text-3xl md:text-4xl">{sportName}</h1>
           <div className="flex items-center gap-4 mt-2 text-xs">
             <Link href="/sports" className="text-espn-red hover:underline font-bold">← All Sports</Link>
-            <Link href={`/${sport}/scores`} className="text-espn-text hover:text-white">Scores</Link>
-            <Link href={`/${sport}/teams`} className="text-espn-text hover:text-white">Teams</Link>
+            <Link href={`/${sport}/scores`} className="text-espn-text hover:text-espn-red font-medium">Scores</Link>
+            <Link href={`/${sport}/teams`} className="text-espn-text hover:text-espn-red font-medium">Teams</Link>
           </div>
         </div>
       </div>
@@ -120,7 +69,7 @@ export function SportPage({ sport }: Props) {
           {teacherSports.length > 0 && (
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-white font-black text-xl uppercase border-l-4 border-espn-red pl-2">
+                <h2 className="text-espn-text font-black text-xl uppercase border-l-4 border-espn-red pl-2">
                   {sportName} Articles & Stories ({teacherSports.length})
                 </h2>
                 <span className="text-xs text-espn-text-muted">Click any to view</span>
@@ -140,14 +89,14 @@ export function SportPage({ sport }: Props) {
                     unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <span className="bg-espn-red text-white text-[10px] font-black px-2 py-0.5 uppercase mb-2 inline-block">
+                  <div className="hero-overlay keep-white absolute bottom-0 left-0 right-0 p-5 text-white">
+                    <span className="keep-white bg-espn-red text-white text-[10px] font-black px-2 py-0.5 uppercase mb-2 inline-block">
                       Featured
                     </span>
                     <h2 className="text-white text-xl md:text-2xl font-black line-clamp-2 group-hover:text-espn-red transition-colors">
                       {teacherSports[0].name}
                     </h2>
-                    <p className="text-gray-300 text-xs mt-1.5 line-clamp-2 font-light">
+                    <p className="text-gray-200 text-xs mt-1.5 line-clamp-2 font-normal">
                       {teacherSports[0].description}
                     </p>
                     <span className="text-espn-red text-xs font-bold mt-2 inline-flex items-center gap-1">
@@ -176,7 +125,7 @@ export function SportPage({ sport }: Props) {
                     </div>
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
-                        <h3 className="text-sm font-bold text-white group-hover:text-espn-red transition-colors line-clamp-2">
+                        <h3 className="text-sm font-bold text-espn-text group-hover:text-espn-red transition-colors line-clamp-2">
                           {item.name}
                         </h3>
                         <p className="text-xs text-espn-text-muted mt-1.5 line-clamp-2">
@@ -192,7 +141,6 @@ export function SportPage({ sport }: Props) {
                             {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
                           </span>
                         )}
-
                       </div>
                     </div>
                   </Link>
@@ -204,7 +152,7 @@ export function SportPage({ sport }: Props) {
           {/* Events for this category */}
           {teacherEvents.length > 0 && (
             <section className="mt-8">
-              <h2 className="text-white font-black text-xl uppercase border-l-4 border-espn-red pl-2 mb-4">
+              <h2 className="text-espn-text font-black text-xl uppercase border-l-4 border-espn-red pl-2 mb-4">
                 {sportName} Facilities & Matches ({teacherEvents.length})
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -231,7 +179,7 @@ export function SportPage({ sport }: Props) {
                     </div>
                     <div className="p-3.5 flex-1 flex flex-col justify-between">
                       <div>
-                        <h4 className="text-sm font-bold text-white group-hover:text-espn-red transition-colors line-clamp-1">
+                        <h4 className="text-sm font-bold text-espn-text group-hover:text-espn-red transition-colors line-clamp-1">
                           {evt.name}
                         </h4>
                         <p className="text-xs text-espn-text-muted mt-1 line-clamp-2">
@@ -252,7 +200,7 @@ export function SportPage({ sport }: Props) {
           {/* Fallback articles if none in teacher sports */}
           {teacherSports.length === 0 && teacherEvents.length === 0 && (
             <div>
-              <h2 className="text-white font-black text-lg uppercase border-l-4 border-espn-red pl-2 mb-4">
+              <h2 className="text-espn-text font-black text-lg uppercase border-l-4 border-espn-red pl-2 mb-4">
                 {sportName} News
               </h2>
               <div className="space-y-3">
@@ -271,13 +219,12 @@ export function SportPage({ sport }: Props) {
                       />
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-bold text-white group-hover:text-espn-red transition-colors line-clamp-2">
+                      <h4 className="text-sm font-bold text-espn-text group-hover:text-espn-red transition-colors line-clamp-2">
                         {article.headline}
                       </h4>
                       <p className="text-espn-text-muted text-xs mt-1" suppressHydrationWarning>
                         {formatDistanceToNow(new Date(article.published), { addSuffix: true })}
                       </p>
-
                     </div>
                   </div>
                 ))}
@@ -289,31 +236,32 @@ export function SportPage({ sport }: Props) {
         {/* Sidebar */}
         <div className="space-y-6">
           <div className="bg-espn-dark border border-espn-gray-border rounded-md p-4">
-            <h3 className="text-white font-black text-sm uppercase border-l-4 border-espn-red pl-2 mb-3">
+            <h3 className="text-espn-text font-black text-sm uppercase border-l-4 border-espn-red pl-2 mb-3">
               Explore More Categories
             </h3>
             <div className="flex flex-wrap gap-1.5">
-              {['Football', 'Boxing', 'Tennis', 'Cycling', 'Swimming', 'Running', 'Racing', 'Volleyball', 'Chess'].map(
-                (cat) => (
+              {CATEGORY_CHIPS.map((cat) => {
+                const isCurrent = sportKey === cat.toLowerCase();
+                return (
                   <Link
                     key={cat}
                     href={`/${cat.toLowerCase()}`}
                     className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
-                      sportKey === cat.toLowerCase()
+                      isCurrent
                         ? 'bg-espn-red text-white'
-                        : 'bg-espn-gray text-espn-text hover:text-white hover:bg-espn-gray-light'
+                        : 'bg-espn-sub text-espn-text hover:text-white hover:bg-espn-red'
                     }`}
                   >
                     {cat}
                   </Link>
-                ),
-              )}
+                );
+              })}
             </div>
           </div>
 
           {/* Scores Sidebar */}
           <div className="bg-espn-dark border border-espn-gray-border rounded-md p-4">
-            <h2 className="text-white font-black text-sm uppercase border-l-4 border-espn-red pl-2 mb-3">
+            <h2 className="text-espn-text font-black text-sm uppercase border-l-4 border-espn-red pl-2 mb-3">
               Live Scores & Results
             </h2>
             <div className="space-y-2">
@@ -341,11 +289,11 @@ export function SportPage({ sport }: Props) {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-espn-text">{game.awayTeam.abbreviation}</span>
-                      <span className="text-xs font-bold text-white">{game.awayTeam.score}</span>
+                      <span className="text-xs font-bold text-espn-text">{game.awayTeam.score}</span>
                     </div>
                     <div className="flex justify-between items-center mt-0.5">
                       <span className="text-xs text-espn-text">{game.homeTeam.abbreviation}</span>
-                      <span className="text-xs font-bold text-white">{game.homeTeam.score}</span>
+                      <span className="text-xs font-bold text-espn-text">{game.homeTeam.score}</span>
                     </div>
                   </div>
                 ))

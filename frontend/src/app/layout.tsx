@@ -22,6 +22,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -39,21 +41,29 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-espn-darker min-h-screen text-espn-text">
+      <body className="bg-espn-darker min-h-screen text-espn-text antialiased">
         <Providers>
           <ScoresTicker />
           <Navbar />
-          <main className="min-h-screen">
+          <main className="min-h-screen animate-fade-in">
             {children}
           </main>
           <Footer />
           <Toaster
             position="top-right"
             toastOptions={{
+              duration: 3500,
               style: {
-                background: '#2d2d2d',
-                color: '#d0d0d0',
-                border: '1px solid #444',
+                background: '#1e1e1e',
+                color: '#e0e0e0',
+                border: '1px solid #333',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: '500',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+              },
+              success: {
+                iconTheme: { primary: '#CC0000', secondary: '#ffffff' },
               },
             }}
           />

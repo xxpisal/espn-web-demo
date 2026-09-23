@@ -1,5 +1,6 @@
 'use client';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { STORAGE_KEYS } from '@/lib/constants';
 
 type Theme = 'light' | 'dark';
 
@@ -11,41 +12,32 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function applyDomTheme(t: Theme) {
+  const root = document.documentElement;
+  root.classList.remove('light', 'dark');
+  root.classList.add(t);
+  root.setAttribute('data-theme', t);
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Check saved theme or system preference
-    const saved = localStorage.getItem('espn_theme') as Theme | null;
-    if (saved === 'light' || saved === 'dark') {
-      setThemeState(saved);
-      applyTheme(saved);
-    } else {
-      // Default to dark for ESPN
-      setThemeState('dark');
-      applyTheme('dark');
-    }
-    setMounted(true);
+    const saved = localStorage.getItem(STORAGE_KEYS.THEME) as Theme | null;
+    const initialTheme: Theme = saved === 'light' || saved === 'dark' ? saved : 'dark';
+    setThemeState(initialTheme);
+    applyDomTheme(initialTheme);
   }, []);
 
-  const applyTheme = (t: Theme) => {
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(t);
-    root.setAttribute('data-theme', t);
-  };
-
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('espn_theme', newTheme);
-    applyTheme(newTheme);
-  };
+    localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
+    applyDomTheme(newTheme);
+  }, []);
 
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-  };
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, setTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
@@ -54,7 +46,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useTheme() {
+export function useTheme(): ThemeContextType {
   const context = useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');

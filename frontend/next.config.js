@@ -13,6 +13,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'sport-hub.eunglyzhia.social' },
       { protocol: 'https', hostname: '**.espncdn.com' },
       { protocol: 'https', hostname: '1000logos.net' },
+      { protocol: 'https', hostname: '**.akamaized.net' },
+      { protocol: 'https', hostname: 'espnmedia-cdn.akamaized.net' },
     ],
   },
   async rewrites() {
@@ -21,8 +23,8 @@ const nextConfig = {
         source: '/api/:path*',
         destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/:path*`,
       },
-    ]
+    ];
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

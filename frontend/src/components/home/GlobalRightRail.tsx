@@ -1,19 +1,28 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useQuery } from '@tanstack/react-query';
-import { newsApi, sportsApi } from '@/lib/api';
-import { Trophy, Podcast, Shield, ArrowRight } from 'lucide-react';
+import { Trophy, Podcast, Shield, ArrowRight, TrendingUp } from 'lucide-react';
+import { useTopHeadlines, useStandings } from '@/lib/hooks';
+import { SPORT_BADGE_COLORS } from '@/lib/constants';
+
+interface StandingRow {
+  rank: number;
+  team: string;
+  abbr: string;
+  wins: number;
+  losses: number;
+  pts?: number;
+}
 
 const STANDINGS_SPORTS = [
   { id: 'football', label: 'Football' },
   { id: 'f1', label: 'F1' },
   { id: 'nba', label: 'NBA' },
   { id: 'tennis', label: 'Tennis' },
-];
+] as const;
 
-const MOCK_STANDINGS: Record<string, Array<{ rank: number; team: string; abbr: string; wins: number; losses: number; pts?: number }>> = {
+const MOCK_STANDINGS: Record<string, StandingRow[]> = {
   football: [
     { rank: 1, team: 'Liverpool', abbr: 'LIV', wins: 20, losses: 3, pts: 63 },
     { rank: 2, team: 'Arsenal', abbr: 'ARS', wins: 18, losses: 4, pts: 58 },
@@ -28,10 +37,10 @@ const MOCK_STANDINGS: Record<string, Array<{ rank: number; team: string; abbr: s
     { rank: 4, team: 'Lewis Hamilton', abbr: 'MER', wins: 2, losses: 0, pts: 190 },
   ],
   nba: [
-    { rank: 1, team: 'Boston Celtics', abbr: 'BOS', wins: 32, losses: 9 },
-    { rank: 2, team: 'Cleveland Cavaliers', abbr: 'CLE', wins: 33, losses: 8 },
-    { rank: 3, team: 'OKC Thunder', abbr: 'OKC', wins: 30, losses: 11 },
-    { rank: 4, team: 'LA Lakers', abbr: 'LAL', wins: 24, losses: 18 },
+    { rank: 1, team: 'Boston Celtics', abbr: 'BOS', wins: 32, losses: 9, pts: 73 },
+    { rank: 2, team: 'Cleveland Cavaliers', abbr: 'CLE', wins: 33, losses: 8, pts: 74 },
+    { rank: 3, team: 'OKC Thunder', abbr: 'OKC', wins: 30, losses: 11, pts: 71 },
+    { rank: 4, team: 'LA Lakers', abbr: 'LAL', wins: 24, losses: 18, pts: 66 },
   ],
   tennis: [
     { rank: 1, team: 'Jannik Sinner', abbr: 'ITA', wins: 55, losses: 6, pts: 11830 },
@@ -55,75 +64,88 @@ const DEFAULT_TOP_HEADLINES = [
 ];
 
 export function GlobalRightRail() {
-  const [activeSport, setActiveSport] = useState('football');
+  const [activeSport, setActiveSport] = useState<string>('football');
 
-  const { data: headlinesData } = useQuery({
-    queryKey: ['global-right-headlines'],
-    queryFn: () => newsApi.getTopHeadlines(10).then((r) => r.data),
-    retry: false,
-  });
+  const { data: headlinesData } = useTopHeadlines(10);
+  const { data: standingsData } = useStandings(activeSport);
 
-  const { data: standingsData } = useQuery({
-    queryKey: ['global-standings', activeSport],
-    queryFn: () => sportsApi.getStandings('football', activeSport).then((r) => r.data),
-    retry: false,
-  });
+  const headlines = useMemo(() => {
+    if (Array.isArray(headlinesData) && headlinesData.length > 0) {
+      return headlinesData.map((h: any, idx: number) => ({
+        id: String(h.id ?? idx + 1),
+        title: h.headline ?? h.title ?? '',
+        sport: h.sport ?? 'Sports',
+      }));
+    }
+    return DEFAULT_TOP_HEADLINES;
+  }, [headlinesData]);
 
-  const headlines = Array.isArray(headlinesData) && headlinesData.length > 0
-    ? headlinesData.map((h: any, idx: number) => ({
-        id: h.id || String(idx + 1),
-        title: h.headline || h.title,
-        sport: h.sport || 'Sports',
-      }))
-    : DEFAULT_TOP_HEADLINES;
-
-  const currentStandings = standingsData?.standings || MOCK_STANDINGS[activeSport] || MOCK_STANDINGS.football;
+  const currentStandings: StandingRow[] = useMemo(() => {
+    return (
+      (standingsData as any)?.standings ??
+      MOCK_STANDINGS[activeSport] ??
+      MOCK_STANDINGS.football
+    );
+  }, [standingsData, activeSport]);
 
   return (
-    <aside className="w-[320px] shrink-0 space-y-5 text-xs font-sans">
-      {/* Top Headlines Module */}
-      <div className="bg-espn-card border border-espn-border rounded-sm shadow-xs overflow-hidden">
-        <div className="p-3 bg-espn-card border-b border-espn-border flex items-center justify-between">
-          <h3 className="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
-            <span className="w-1.5 h-4 bg-espn-red rounded-xs inline-block" />
+    <aside className="w-[300px] shrink-0 space-y-4 text-xs font-sans">
+      {/* Top Headlines */}
+      <div className="rounded-xl overflow-hidden shadow-card bg-espn-dark border border-espn-gray-border">
+        <div className="px-4 py-3 flex items-center justify-between bg-espn-gray border-b border-espn-gray-border">
+          <h3 className="text-espn-text font-black text-sm uppercase tracking-wider flex items-center gap-2.5">
+            <TrendingUp className="w-4 h-4 text-espn-red" />
             Top Headlines
           </h3>
-          <span className="text-[10px] text-espn-text-muted font-bold uppercase">Live</span>
+          <span className="flex items-center gap-1.5 text-[10px] text-green-400 font-bold uppercase">
+            <span className="live-dot" />
+            Live
+          </span>
         </div>
 
-        <ol className="divide-y divide-espn-border">
-          {headlines.slice(0, 10).map((story: any, idx: number) => (
-            <li key={story.id || idx}>
-              <Link
-                href="/football"
-                className="flex items-start gap-3 p-3 hover:bg-[#222222] transition-colors group"
-              >
-                <span className="text-base font-black text-espn-red shrink-0 w-4 text-center mt-0.5">
-                  {idx + 1}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-bold uppercase text-gray-400 block mb-0.5">
-                    {story.sport}
+        <ol className="divide-y divide-espn-gray-border">
+          {headlines.slice(0, 10).map((story, idx) => {
+            const badgeColor = SPORT_BADGE_COLORS[story.sport] ?? '#555';
+            return (
+              <li key={story.id || idx}>
+                <Link
+                  href="/football"
+                  className="flex items-start gap-3 px-4 py-3 group transition-colors hover:bg-black/5 dark:hover:bg-white/3"
+                >
+                  <span
+                    className={`text-base font-black shrink-0 w-5 text-center mt-0.5 tabular-nums ${
+                      idx < 3 ? 'text-espn-red' : 'text-espn-text-muted'
+                    }`}
+                  >
+                    {idx + 1}
                   </span>
-                  <p className="text-[13px] font-bold text-gray-100 group-hover:text-espn-red transition-colors leading-snug line-clamp-2">
-                    {story.title}
-                  </p>
-                </div>
-              </Link>
-            </li>
-          ))}
+                  <div className="flex-1 min-w-0">
+                    <span
+                      className="keep-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded text-white inline-block mb-1"
+                      style={{ backgroundColor: badgeColor }}
+                    >
+                      {story.sport}
+                    </span>
+                    <p className="text-[12.5px] font-semibold text-espn-text group-hover:text-espn-red transition-colors leading-snug line-clamp-2">
+                      {story.title}
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
         </ol>
       </div>
 
-      {/* 30 for 30 Podcasts / Editorial Spotlight */}
-      <div className="bg-espn-card border border-espn-border rounded-sm overflow-hidden shadow-xs">
-        <div className="p-3 border-b border-espn-border flex items-center gap-2">
-          <Podcast className="w-4 h-4 text-espn-red" />
-          <h3 className="text-white font-black text-xs uppercase tracking-wider">
-            30 for 30 Podcasts
-          </h3>
+      {/* 30 for 30 Podcasts */}
+      <div className="rounded-xl overflow-hidden shadow-card bg-espn-dark border border-espn-gray-border">
+        <div className="px-4 py-3 flex items-center gap-2.5 bg-espn-gray border-b border-espn-gray-border">
+          <div className="p-1.5 rounded-lg bg-espn-red/15">
+            <Podcast className="w-3.5 h-3.5 text-espn-red" />
+          </div>
+          <h3 className="text-espn-text font-black text-xs uppercase tracking-wider">30 for 30 Podcasts</h3>
         </div>
-        <div className="relative h-36 w-full bg-[#1e1e1e]">
+        <div className="relative h-40 w-full bg-espn-darker overflow-hidden">
           <Image
             src="https://a4.espncdn.com/combiner/i?img=%2Fphoto%2F2026%2F0716%2Fr1690018_1296x729_16%2D9.jpg&w=640&h=360&scale=crop&cquality=80"
             alt="30 for 30"
@@ -131,53 +153,51 @@ export function GlobalRightRail() {
             className="object-cover"
             unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-          <span className="absolute bottom-2 left-3 text-[10px] uppercase font-bold text-white bg-espn-red px-2 py-0.5 rounded-xs">
-            Audio Feature
-          </span>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+          <span className="absolute bottom-3 left-4 espn-badge keep-white">Audio Feature</span>
         </div>
-        <div className="p-3.5 space-y-1.5">
-          <h4 className="text-sm font-bold text-white hover:text-espn-red transition-colors leading-snug">
+        <div className="p-4 space-y-2">
+          <h4 className="text-[13px] font-bold text-espn-text hover:text-espn-red transition-colors leading-snug cursor-pointer">
             The Betrayal of Shohei Ohtani
           </h4>
           <p className="text-[11.5px] text-espn-text-muted leading-relaxed">
-            How Shohei Ohtani’s relationship with his interpreter unraveled amid an international sports betting probe.
+            How Shohei Ohtani&apos;s relationship with his interpreter unraveled amid an international sports betting probe.
           </p>
           <a
             href="https://www.espn.com/podcasts"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-espn-red hover:underline pt-1"
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-espn-red hover:underline pt-1"
           >
             Listen now <ArrowRight className="w-3 h-3" />
           </a>
         </div>
       </div>
 
-      {/* ESPN Fantasy Signup Box */}
-      <div className="bg-gradient-to-b from-[#1c2438] to-[#121620] border border-[#2d3a54] rounded-sm p-4 text-white shadow-xs">
-        <div className="flex items-center gap-2 mb-2">
+      {/* Fantasy Sign-up */}
+      <div className="rounded-xl p-4 text-white shadow-card relative overflow-hidden bg-gradient-to-br from-[#1a2540] to-[#0d1520] border border-[#2d3a54] dark-card keep-white">
+        <div className="flex items-center gap-2 mb-2.5">
           <Trophy className="w-4 h-4 text-amber-400" />
-          <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">
+          <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">
             ESPN Fantasy 2026
           </span>
         </div>
-        <h4 className="text-sm font-black leading-snug mb-1">
-          Sign up to play the #1 Fantasy game!
+        <h4 className="text-[15px] font-black leading-snug mb-2">
+          Play the #1 Fantasy game — for free!
         </h4>
-        <p className="text-[11px] text-gray-300 mb-3.5 leading-relaxed">
+        <p className="text-[11.5px] text-blue-200/70 mb-4 leading-relaxed">
           Create customized leagues, draft live with friends, and enjoy real-time stat tracking.
         </p>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Link
             href="/fantasy"
-            className="block w-full text-center py-2 bg-espn-red hover:bg-red-700 text-white font-black text-xs rounded transition-colors"
+            className="block w-full text-center py-2.5 rounded-lg font-black text-xs text-white transition-all duration-200 hover:opacity-90 bg-red-gradient"
           >
             Create A League
           </Link>
           <Link
             href="/fantasy"
-            className="block w-full text-center py-2 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white font-bold text-xs rounded border border-white/20 transition-colors"
+            className="block w-full text-center py-2.5 rounded-lg font-bold text-xs text-gray-200 hover:text-white transition-all duration-200 bg-white/10 border border-white/20"
           >
             Join Public League
           </Link>
@@ -185,27 +205,27 @@ export function GlobalRightRail() {
       </div>
 
       {/* Standings Widget */}
-      <div className="bg-espn-card border border-espn-border rounded-sm shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between p-3 border-b border-espn-border">
-          <h3 className="text-white font-black text-xs uppercase tracking-wider flex items-center gap-2">
+      <div className="rounded-xl overflow-hidden shadow-card bg-espn-dark border border-espn-gray-border">
+        <div className="flex items-center justify-between px-4 py-3 bg-espn-gray border-b border-espn-gray-border">
+          <h3 className="text-espn-text font-black text-xs uppercase tracking-wider flex items-center gap-2">
             <Shield className="w-3.5 h-3.5 text-espn-red" />
             Standings
           </h3>
-          <Link href={`/${activeSport}`} className="text-espn-red text-[11px] font-bold hover:underline">
-            View All
+          <Link href={`/${activeSport}`} className="text-espn-red text-[11px] font-bold hover:underline flex items-center gap-1">
+            View All <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
 
-        {/* Sport tabs */}
-        <div className="flex border-b border-espn-border bg-[#161616]">
+        {/* Sport Tabs */}
+        <div className="flex bg-espn-darker border-b border-espn-gray-border">
           {STANDINGS_SPORTS.map((s) => (
             <button
               key={s.id}
               onClick={() => setActiveSport(s.id)}
-              className={`flex-1 py-1.5 text-[11px] font-bold transition-colors ${
+              className={`flex-1 py-2 text-[11px] font-bold transition-all duration-200 ${
                 activeSport === s.id
-                  ? 'text-white border-b-2 border-espn-red bg-[#222222]'
-                  : 'text-espn-text-muted hover:text-white'
+                  ? 'text-espn-text border-b-2 border-espn-red'
+                  : 'text-espn-text-muted hover:text-espn-text'
               }`}
             >
               {s.label}
@@ -213,29 +233,35 @@ export function GlobalRightRail() {
           ))}
         </div>
 
-        {/* Table header */}
-        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-1 px-3 py-1.5 text-[9.5px] text-gray-400 uppercase font-bold bg-[#141414]">
+        {/* Table Header */}
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-1 px-4 py-2 text-[9px] text-espn-text-muted uppercase font-bold tracking-widest bg-espn-darker">
           <span>Team / Athlete</span>
-          <span className="w-8 text-center">W</span>
-          <span className="w-8 text-center">L</span>
+          <span className="w-7 text-center">W</span>
+          <span className="w-7 text-center">L</span>
           <span className="w-10 text-center">PTS</span>
         </div>
 
-        {/* Table rows */}
-        <div className="divide-y divide-espn-border">
-          {currentStandings.slice(0, 5).map((entry: any, i: number) => (
+        {/* Table Rows */}
+        <div className="divide-y divide-espn-gray-border">
+          {currentStandings.slice(0, 5).map((entry, i) => (
             <div
-              key={i}
-              className="grid grid-cols-[1fr_auto_auto_auto] gap-1 px-3 py-2 text-[11.5px] items-center hover:bg-[#202020] transition-colors"
+              key={entry.team || i}
+              className="grid grid-cols-[1fr_auto_auto_auto] gap-1 px-4 py-2.5 items-center transition-colors hover:bg-black/5 dark:hover:bg-white/3 cursor-pointer"
             >
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-[10px] text-gray-500 w-3 text-center">{entry.rank || i + 1}</span>
-                <span className="font-bold text-gray-100 truncate">{entry.team}</span>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span
+                  className={`text-[10px] font-black w-4 text-center shrink-0 tabular-nums ${
+                    i === 0 ? 'text-amber-400' : 'text-espn-text-muted'
+                  }`}
+                >
+                  {entry.rank || i + 1}
+                </span>
+                <span className="font-semibold text-[12.5px] text-espn-text truncate">{entry.team}</span>
               </div>
-              <span className="w-8 text-center font-medium text-gray-200">{entry.wins}</span>
-              <span className="w-8 text-center font-medium text-gray-400">{entry.losses}</span>
-              <span className="w-10 text-center font-bold text-white">
-                {entry.pts ?? (entry.wins * 2)}
+              <span className="w-7 text-center text-[12px] font-bold text-green-400 tabular-nums">{entry.wins}</span>
+              <span className="w-7 text-center text-[12px] font-medium text-espn-text-muted tabular-nums">{entry.losses}</span>
+              <span className="w-10 text-center text-[12px] font-black text-espn-text tabular-nums">
+                {entry.pts ?? entry.wins * 2}
               </span>
             </div>
           ))}
